@@ -21,6 +21,15 @@ export const createClient = async () => {
           });
         },
       },
-    }
+    },
+  );
+};
+
+// Add a method to create a client with service role for admin operations
+createClient.withServiceRole = () => {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+    {},
   );
 };
