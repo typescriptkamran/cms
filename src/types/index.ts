@@ -42,11 +42,11 @@ export interface OrdersResponse {
 
 // Shop types
 export interface Shop {
-  id: string;
-  name: string;
-  country: string;
-  timezone: string;
-  created_at: string;
+  id: string;          // UUID for the shop
+  name: string;        // Shop name
+  country: string;     // Shop country
+  timezone: string;    // Shop timezone
+  created_at: string;  // Timestamp of when the shop was created
 }
 
 export interface ShopsResponse {
