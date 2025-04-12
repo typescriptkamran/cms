@@ -1,15 +1,12 @@
 // Common types for the CMS dashboard
 
 // Order types
-export type OrderStatus =
-  | "paid"
-  | "processing"
-  | "failed"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
 
-export interface Order {
+// src/types/index.ts
+
+export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+
+export type Order = {
   id: string;
   customer: string;
   delivery: string;
@@ -20,9 +17,14 @@ export interface Order {
   shop: string;
   device: string;
   order_date: string;
-  delivery_date: string;
+  delivery_date: string; // not nullable
   status: OrderStatus;
-}
+};
+
+const orderStatuses: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
+
+
+
 
 export interface OrderFilters {
   page: number;
@@ -76,6 +78,7 @@ export interface SEO {
   title: string;
   description: string;
   keywords: string[];
+  updated_at: string;
 }
 
 export interface SEOsResponse {
