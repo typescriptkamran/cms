@@ -1,14 +1,8 @@
-import { createBrowserClient } from "@supabase/ssr";
 import { Order, OrderFilters, OrdersResponse } from "@/types/Order";
+import { createClient } from "@/supabase/client";
 
-export const createClient = () =>
-  createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-
-// This function will be used to fetch orders from Supabase
-export async function fetchOrdersFromSupabase(
+// Fetch orders from Supabase with filtering, sorting, and pagination
+export async function getOrdersFromDB(
   filters: OrderFilters,
 ): Promise<OrdersResponse> {
   const supabase = createClient();
@@ -71,7 +65,7 @@ export async function fetchOrdersFromSupabase(
       error: null,
     };
   } catch (error) {
-    console.error("Error fetching orders from Supabase:", error);
+    console.error("Error fetching orders from database:", error);
     return {
       data: null,
       count: null,
@@ -80,8 +74,8 @@ export async function fetchOrdersFromSupabase(
   }
 }
 
-// This function will be used to create an order in Supabase
-export async function createOrderInSupabase(
+// Create a new order in the database
+export async function createOrderInDB(
   order: Omit<Order, "id">,
 ): Promise<{ data: Order | null; error: Error | null }> {
   const supabase = createClient();
@@ -100,7 +94,7 @@ export async function createOrderInSupabase(
       error: null,
     };
   } catch (error) {
-    console.error("Error creating order in Supabase:", error);
+    console.error("Error creating order in database:", error);
     return {
       data: null,
       error: error as Error,
@@ -108,8 +102,8 @@ export async function createOrderInSupabase(
   }
 }
 
-// This function will be used to update an order in Supabase
-export async function updateOrderInSupabase(
+// Update an existing order in the database
+export async function updateOrderInDB(
   id: string,
   updates: Partial<Order>,
 ): Promise<{ data: Order | null; error: Error | null }> {
@@ -130,7 +124,7 @@ export async function updateOrderInSupabase(
       error: null,
     };
   } catch (error) {
-    console.error(`Error updating order ${id} in Supabase:`, error);
+    console.error(`Error updating order ${id} in database:`, error);
     return {
       data: null,
       error: error as Error,
@@ -138,8 +132,8 @@ export async function updateOrderInSupabase(
   }
 }
 
-// This function will be used to delete an order in Supabase
-export async function deleteOrderInSupabase(
+// Delete an order from the database
+export async function deleteOrderFromDB(
   id: string,
 ): Promise<{ success: boolean; error: Error | null }> {
   const supabase = createClient();
@@ -154,9 +148,70 @@ export async function deleteOrderInSupabase(
       error: null,
     };
   } catch (error) {
-    console.error(`Error deleting order ${id} in Supabase:`, error);
+    console.error(`Error deleting order ${id} from database:`, error);
     return {
       success: false,
+      error: error as Error,
+    };
+  }
+}
+
+// Get order statistics
+export async function getOrderStats(): Promise<{
+  total: number;
+  processing: number;
+  delivered: number;
+  cancelled: number;
+  error: Error | null;
+}> {
+  const supabase = createClient();
+
+  try {
+    // Get total count
+    const { count: total, error: totalError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true });
+
+    if (totalError) throw totalError;
+
+    // Get processing count
+    const { count: processing, error: processingError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "processing");
+
+    if (processingError) throw processingError;
+
+    // Get delivered count
+    const { count: delivered, error: deliveredError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "delivered");
+
+    if (deliveredError) throw deliveredError;
+
+    // Get cancelled count
+    const { count: cancelled, error: cancelledError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "cancelled");
+
+    if (cancelledError) throw cancelledError;
+
+    return {
+      total: total || 0,
+      processing: processing || 0,
+      delivered: delivered || 0,
+      cancelled: cancelled || 0,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error fetching order statistics:", error);
+    return {
+      total: 0,
+      processing: 0,
+      delivered: 0,
+      cancelled: 0,
       error: error as Error,
     };
   }

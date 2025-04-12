@@ -1,9 +1,8 @@
-import React from "react";
-import { updateSession } from "./supabase/middleware";
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
+// Middleware completely removed - no authentication checks
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  return NextResponse.next();
 }
 
 export const config = {

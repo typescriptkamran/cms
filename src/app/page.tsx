@@ -2,19 +2,9 @@ import Footer from "@/components/footer";
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
 import { ArrowUpRight, CheckCircle2, Shield, Users, Zap } from "lucide-react";
-import { createClient } from "../../supabase/server";
-import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // If user is authenticated, redirect to dashboard
-  if (user) {
-    redirect("/dashboard");
-  }
+export default function Home() {
+  // Removed authentication check and redirect
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
