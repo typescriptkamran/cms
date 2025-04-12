@@ -4,7 +4,7 @@
 
 // src/types/index.ts
 
-export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled"| "paid"| "failed";
 
 export type Order = {
   id: string;
@@ -21,7 +21,7 @@ export type Order = {
   status: OrderStatus;
 };
 
-const orderStatuses: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
+const orderStatuses: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled", "paid", "failed"];
 
 
 
@@ -65,11 +65,17 @@ export interface FAQ {
   updated_at: string;
 }
 
-export interface FAQsResponse {
-  data: FAQ[] | null;
-  count: number | null;
-  error: Error | null;
+
+
+
+// Define the response type for fetching FAQ
+export interface FAQResponse {
+  data: FAQ[] | null; // List of FAQ or null in case of an error
+  count: number | null; // The count of FAQ in the database or null if an error occurs
+  error: string | null; // The error message, or null if no error
 }
+
+
 
 // SEO types
 export interface SEO {
@@ -86,3 +92,9 @@ export interface SEOsResponse {
   count: number | null;
   error: Error | null;
 }
+
+
+
+// src/types/index.ts
+export * from "./Order";
+

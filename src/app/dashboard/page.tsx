@@ -1,21 +1,20 @@
 "use client";
+import { Order, OrderFilters } from "@/types/Order"; // directly
+import { FAQ } from "@/types";
 
-import { useState } from "react";
+
+
+import { useEffect, useState } from "react";
 import { Filters } from "@/components/filters";
 import { OrdersTable } from "@/components/orders-table";
-import { OrderFilters } from "@/types/Order";
-import {
-  mockOrders,
-  mockShops,
-  mockFAQs,
-  mockSEOs,
-} from "@/data/mockData";
+import { Shop, FAQ, SEO } from "@/types";
+import { supabase } from "@/supabase/client";
 
 export default function Dashboard() {
-  const [orders] = useState(mockOrders);
-  const [shops] = useState(mockShops);
-  const [faqs] = useState(mockFAQs);
-  const [seos] = useState(mockSEOs);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [faq, setFAQ] = useState<FAQ[]>([]);
+  const [seos, setSEOs] = useState<SEO[]>([]);
   const [filters, setFilters] = useState<OrderFilters>({
     page: 1,
     pageSize: 10,
@@ -27,6 +26,24 @@ export default function Dashboard() {
   const handleFilterChange = (newFilters: Partial<OrderFilters>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [{ data: ordersData }, { data: shopsData }, { data: faqData }, { data: seoData }] = await Promise.all([
+        supabase.from("orders").select("*"),
+        supabase.from("shops").select("*"),
+        supabase.from("faq").select("*"),
+        supabase.from("seos").select("*"),
+      ]);
+
+      if (ordersData) setOrders(ordersData);
+      if (shopsData) setShops(shopsData);
+      if (faqData) setFAQ(faqData);
+      if (seoData) setSEOs(seoData);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -73,11 +90,11 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* FAQs Section */}
+      {/* FAQ Section */}
       <section>
-        <h2 className="text-3xl font-bold mb-4">FAQs</h2>
+        <h2 className="text-3xl font-bold mb-4">FAQ</h2>
         <div className="bg-card rounded-lg border p-4 shadow-sm space-y-4">
-          {faqs.map((faq) => (
+          {faq.map((faq) => (
             <div key={faq.id}>
               <h3 className="font-semibold">{faq.question}</h3>
               <p className="text-muted-foreground">{faq.answer}</p>
@@ -109,7 +126,7 @@ export default function Dashboard() {
                   <td className="px-4 py-2 border">{seo.title}</td>
                   <td className="px-4 py-2 border">{seo.description}</td>
                   <td className="px-4 py-2 border">
-                    {seo.keywords.join(", ")}
+                    {seo.keywords?.join(", ")}
                   </td>
                 </tr>
               ))}

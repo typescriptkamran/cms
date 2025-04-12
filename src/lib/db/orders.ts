@@ -69,24 +69,3 @@ export async function getOrdersFromDB(
   }
 }
 
-export async function createOrderInDB(
-  order: Omit<Order, "id" | "order_date" | "delivery_date">
-): Promise<{ data: Order | null; error: Error | null }> {
-  try {
-    const now = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("orders")
-      .insert({
-        ...order,
-        order_date: now,
-        delivery_date: now,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return { data: data as Order, error: null };
-  } catch (error) {
-    return { data: null, error: error as Error };
-  }
-}

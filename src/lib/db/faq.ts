@@ -1,44 +1,56 @@
 // src/lib/db/faq.ts
 import { createClient } from "@supabase/supabase-js";
-import { FAQ, FAQsResponse } from "@/types"; // Import your types (make sure FAQ and FAQsResponse are defined in your types)
+import { FAQ, FAQResponse } from "@/types"; // Import your types (make sure FAQ and FAQResponse are defined in your types)
+
+interface DBErrorResponse {
+  data: FAQ[] | null;
+  count: number | null;
+  error: string | null; // Return error as a string message
+}
+
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  throw new Error("Supabase URL or Anon key is missing in environment variables.");
+}
 
 export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!, // Use your Supabase URL
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // Use your Supabase Anon key
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-// Fetch all FAQs from the database
-export async function getFAQsFromDB(): Promise<FAQsResponse> {
+// Fetch all FAQ from the database
+export async function getFAQFromDB(): Promise<DBErrorResponse> {
   try {
     const { data, error, count } = await supabase
-      .from("faq") // Assuming the table is called "faqs"
+      .from("faq")
       .select("*", { count: "exact" })
-      .order("updated_at", { ascending: false }); // Order FAQs by the updated_at field, most recent first
+      .order("updated_at", { ascending: false });
 
-    if (error) throw error; // If there's an error, throw it
+    if (error) throw error;
 
-    // Return data, count of records, and error (if any)
     return {
-      data: data as FAQ[],  // Cast the data to the FAQ type
-      count: count || 0, // If count is null, return 0
-      error: null, // No error here
+      data: data as FAQ[],
+      count: count ?? 0,
+      error: null,
     };
   } catch (error) {
-    console.error("Error fetching FAQs from the database:", error);
+    console.error("Error fetching FAQ:", error);
     return {
-      data: null, // If there was an error, return null for data
-      count: null, // No count available in case of an error
-      error: error as Error, // Return the error
+      data: null,
+      count: null,
+      error: error instanceof Error ? error.message : "Unknown error", // Return error message
     };
   }
 }
 
-
-// src/lib/db/faq.ts
+// Create FAQ in the database
 export async function createFAQInDB(
   faq: Omit<FAQ, "id" | "updated_at">
 ): Promise<{ data: FAQ | null; error: Error | null }> {
   try {
+    if (!faq.question?.trim() || !faq.answer?.trim()) {
+      throw new Error("FAQ question and answer cannot be empty or just whitespace.");
+    }
+
     const { data, error } = await supabase
       .from("faq")
       .insert({ ...faq, updated_at: new Date().toISOString() })
@@ -52,10 +64,10 @@ export async function createFAQInDB(
       error: null,
     };
   } catch (error) {
-    console.error("Error creating FAQ in database:", error);
+    console.error("Error creating FAQ:", error);
     return {
       data: null,
-      error: error as Error,
+      error: error instanceof Error ? error : new Error("Unknown error"),
     };
   }
 }

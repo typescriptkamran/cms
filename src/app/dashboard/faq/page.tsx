@@ -5,7 +5,7 @@ import { FAQ } from "@/types"; // Import the FAQ type
 import { createFAQInDB } from "@/lib/db/faq"; // Import function to create new FAQ
 
 // This is the Client-Side component that will handle the state and UI rendering
-export default function FAQsPage({ faqs }: { faqs: FAQ[] }) {
+export default function FAQPage({ faq }: { faq: FAQ[] }) {
   // Modal state management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [question, setQuestion] = useState("");
@@ -44,7 +44,7 @@ export default function FAQsPage({ faqs }: { faqs: FAQ[] }) {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">FAQs</h1>
+      <h1 className="text-2xl font-bold mb-4">FAQ</h1>
 
       {/* Display success or error messages */}
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
@@ -62,7 +62,7 @@ export default function FAQsPage({ faqs }: { faqs: FAQ[] }) {
 
       {/* FAQ List */}
       <div className="space-y-4">
-        {faqs?.map((faq: FAQ) => (
+        {faq?.map((faq: FAQ) => (
           <div key={faq.id} className="border p-4 rounded">
             <h2 className="font-semibold">{faq.question}</h2>
             <p>{faq.answer}</p>
