@@ -24,9 +24,8 @@ export async function getFAQFromDB(): Promise<DBErrorResponse> {
       .from("faq")
       .select("*", { count: "exact" })
       .order("updated_at", { ascending: false });
-
+    
     if (error) throw error;
-
     return {
       data: data as FAQ[],
       count: count ?? 0,
